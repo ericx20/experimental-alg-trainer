@@ -44,7 +44,6 @@ export const useStore = create<State & Actions>()(
   immer((set, get) => ({
     algSheet: processDefaultAlgSheet(OCLS),
     getSelectedAlgs: () => {
-      console.log("selecting the algs");
       const algSets = get().algSheet.algSets;
       return algSets.flatMap((algSet) =>
         algSet.algs.filter((alg) => alg.selected)

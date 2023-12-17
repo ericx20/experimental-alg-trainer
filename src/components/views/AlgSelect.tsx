@@ -10,8 +10,8 @@ import { useStore } from "../../store";
 import { Button } from "@mui/joy";
 import { Alg, AlgSet } from "../../types";
 import { Type } from "sr-puzzlegen";
-
-import { PuzzleGen, MASKS } from "../PuzzleGen";
+import { MASKS } from "../../lib/puzzle-gen-config";
+import { PuzzleGen } from "../PuzzleGen";
 
 // folder structure is a mess, TODO move this file elsewhere
 export function AlgSelect() {
@@ -57,7 +57,7 @@ function SelectAlgSet(algSet: AlgSet) {
 function SelectAlg(algSetId: string, alg: Alg) {
   const { setAlgSelected } = useStore();
   return (
-    <Grid xs={4} sm={4} md={3} lg={2} xl={1} key={alg.id}>
+    <Grid xs={4} sm={3} lg={2} xl={1} key={alg.id}>
       <Card
         onClick={() => setAlgSelected(algSetId, alg.id, !alg.selected)}
         sx={{ cursor: "pointer" }}
