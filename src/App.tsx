@@ -1,11 +1,13 @@
-import { AlgSelect } from "./components/views/AlgSelect";
-import { AlgTrainer } from "./components/views/AlgTrainer";
+import { Box } from "@mui/joy";
+import { AlgSelect } from "./views/AlgSelect";
+import { AlgTrainer } from "./views/AlgTrainer";
+
 function App() {
   return (
-    <>
+    <Box maxWidth="lg" marginX="auto">
       <AlgSelect />
       <AlgTrainer />
-    </>
+    </Box>
   );
 }
 

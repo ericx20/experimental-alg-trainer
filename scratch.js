@@ -5,12 +5,21 @@ readFile("./in.txt", "utf8", (err, data) => {
     console.error(err);
     return;
   }
-  const lines = data.split(/\r?\n/).filter(Boolean);
-  const algs = lines.map((line) => {
-    let [name, alg] = line.split("\t\t");
-    name = "CO " + name;
-    alg = alg.replaceAll("[", "(").replaceAll("]", ")");
-    return { name, alg };
+  const groupedLines = data.split(/\r?\n\r?\n/);
+  const algs = groupedLines.map((group) => {
+    const algs = group
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map((line) => {
+        const name = "";
+        let alg = line.trim();
+        alg = alg.replaceAll("[", "(").replaceAll("]", ")").trim();
+        return { name, alg };
+      });
+    return {
+      name: "",
+      algs,
+    };
   });
 
   writeFile("out.json", JSON.stringify(algs), (err) => {

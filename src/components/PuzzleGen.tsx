@@ -6,9 +6,10 @@ import styles from "./PuzzleGen.module.css";
 export interface PuzzleGenProps {
   type: Type;
   options: SVGVisualizerOptions;
+  className?: string;
 }
 
-export function PuzzleGen({ type, options }: PuzzleGenProps) {
+export function PuzzleGen({ type, options, className }: PuzzleGenProps) {
   const container = React.useRef<HTMLDivElement>(null);
 
   // Initial render
@@ -29,7 +30,7 @@ export function PuzzleGen({ type, options }: PuzzleGenProps) {
   const { width, height } = options;
   return (
     <div
-      className={styles.puzzleGenContainer}
+      className={[styles.puzzleGenContainer, className].join(" ")}
       style={{ width, height }}
       ref={container}
     ></div>

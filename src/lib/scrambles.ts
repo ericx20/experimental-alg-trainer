@@ -95,19 +95,21 @@ export function randomPllSetup(): string {
   return randomElement(PLL)!.alg;
 }
 
-const AUF = ["", "U", "U'", "U2"];
+export const AUF = ["", "U", "U'", "U2"];
 
 // oclsAlg needs to be in valid Singmaster notation
-export async function generateOclsScramble(oclsAlg: string): Promise<string> {
-  console.log({ oclsAlg });
+export async function generateOclsScramble(
+  oclsAlg: string,
+  preAuf: string
+): Promise<string> {
   const pllSetup = [
     randomElement(AUF),
     randomPllSetup(),
     randomElement(AUF),
   ].join(" ");
-  const oclsSetup = new TwistyAlg(pllSetup).concat(
-    new TwistyAlg(oclsAlg).invert()
-  );
+  const oclsSetup = new TwistyAlg(pllSetup)
+    .concat(new TwistyAlg(oclsAlg).invert())
+    .concat(preAuf);
 
   const kpuzzle = await cube3x3x3.kpuzzle();
   const randomState = kpuzzle.defaultPattern().applyAlg(oclsSetup);
