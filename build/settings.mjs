@@ -2,11 +2,11 @@
 export function createBuildSettings(options) {
   return {
     entryPoints: ["src/index.tsx"],
-    // outfile: "www/bundle.js",
+    // outfile: "dist/bundle.js",
     bundle: true,
     format: "esm",
     splitting: true,
-    outdir: "www",
+    outdir: "dist",
     ...options,
   };
 }
