@@ -7,7 +7,7 @@ import ModalClose from "@mui/joy/ModalClose";
 import Checkbox from "@mui/joy/Checkbox";
 import Card from "@mui/joy/Card";
 import { useStore } from "../store";
-import { Alg, AlgSet } from "../types";
+import type { Alg, AlgSet } from "../types";
 import { Type } from "sr-puzzlegen";
 import { MASKS, SCHEME } from "../lib/puzzle-gen-config";
 import { PuzzleGen } from "../components/PuzzleGen";
