@@ -12,7 +12,7 @@ import { Type } from "sr-puzzlegen";
 import { MASKS, SCHEME } from "../lib/puzzle-gen-config";
 import { PuzzleGen } from "../components/PuzzleGen";
 import { useMediaQuery } from "../hooks";
-import styles from "./AlgSelect.module.css";
+import "./AlgSelect.css";
 
 export function AlgSelect() {
   const { algSheet } = useStore();
@@ -53,7 +53,7 @@ function SelectAlgSet(algSet: AlgSet) {
                 scheme: SCHEME,
               },
             }}
-            className={styles.puzzlegen}
+            className="algselect-puzzlegen"
           />
         )}
         <Typography>
@@ -107,7 +107,7 @@ function SelectAlg(algSetId: string, alg: Alg) {
               scheme: SCHEME,
             },
           }}
-          className={styles.puzzlegen}
+          className="algselect-puzzlegen"
         />
       </Card>
     </Grid>
