@@ -7,12 +7,12 @@ import ModalClose from "@mui/joy/ModalClose";
 import Checkbox from "@mui/joy/Checkbox";
 import Card from "@mui/joy/Card";
 import { useStore } from "../store";
-import { Alg, AlgSet } from "../types";
+import type { Alg, AlgSet } from "../types";
 import { Type } from "sr-puzzlegen";
 import { MASKS, SCHEME } from "../lib/puzzle-gen-config";
 import { PuzzleGen } from "../components/PuzzleGen";
 import { useMediaQuery } from "../hooks";
-import styles from "./AlgSelect.module.css";
+import "./AlgSelect.css";
 
 export function AlgSelect() {
   const { algSheet } = useStore();
@@ -53,7 +53,7 @@ function SelectAlgSet(algSet: AlgSet) {
                 scheme: SCHEME,
               },
             }}
-            className={styles.puzzlegen}
+            className="algselect-puzzlegen"
           />
         )}
         <Typography>
@@ -107,7 +107,7 @@ function SelectAlg(algSetId: string, alg: Alg) {
               scheme: SCHEME,
             },
           }}
-          className={styles.puzzlegen}
+          className="algselect-puzzlegen"
         />
       </Card>
     </Grid>

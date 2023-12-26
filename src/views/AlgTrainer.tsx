@@ -9,7 +9,7 @@ import { Type } from "sr-puzzlegen";
 import { AUF, generateOclsScramble } from "../lib/scrambles";
 import { Alg as TwistyAlg } from "cubing/alg";
 import { cube3x3x3 } from "cubing/puzzles";
-import { Alg } from "../types";
+import type { Alg } from "../types";
 
 export function AlgTrainer() {
   const { getSelectedAlgs, algSheet } = useStore();

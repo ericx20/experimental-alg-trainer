@@ -1,4 +1,4 @@
-import { DefaultAlgSheet } from "../types";
+import type { DefaultAlgSheet } from "../types";
 
 export const OCLS: DefaultAlgSheet = {
   name: "OCLS",

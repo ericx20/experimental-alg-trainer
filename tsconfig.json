@@ -18,8 +18,9 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "verbatimModuleSyntax": true, // avoids surprises with `cubing/twisty`
+
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
 }

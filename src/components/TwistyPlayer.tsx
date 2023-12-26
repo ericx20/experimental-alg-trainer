@@ -1,7 +1,8 @@
 // taken from
 // https://github.com/cubing/react-cubing/blob/main/src/TwistyPlayer/index.tsx
 import * as React from "react";
-import { TwistyPlayer as TP, TwistyPlayerConfig } from "cubing/twisty";
+import { TwistyPlayer as TP } from "cubing/twisty";
+import type { TwistyPlayerConfig } from "cubing/twisty";
 
 export interface TwistyPlayerExtendedConfig extends TwistyPlayerConfig {
   className?: string;

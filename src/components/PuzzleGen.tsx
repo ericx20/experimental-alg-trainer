@@ -1,7 +1,7 @@
-"use client";
 import React from "react";
-import { SVG, Type, SVGVisualizerOptions } from "sr-puzzlegen";
-import styles from "./PuzzleGen.module.css";
+import { SVG, Type } from "sr-puzzlegen";
+import type { SVGVisualizerOptions } from "sr-puzzlegen";
+import "./PuzzleGen.css";
 
 export interface PuzzleGenProps {
   type: Type;
@@ -30,7 +30,7 @@ export function PuzzleGen({ type, options, className }: PuzzleGenProps) {
   const { width, height } = options;
   return (
     <div
-      className={[styles.puzzleGenContainer, className].join(" ")}
+      className={["puzzlegen-container", className].join(" ")}
       style={{ width, height }}
       ref={container}
     ></div>
