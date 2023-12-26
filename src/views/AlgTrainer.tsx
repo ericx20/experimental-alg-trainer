@@ -4,7 +4,9 @@ import {
   Button,
   Card,
   DialogActions,
+  DialogContent,
   DialogTitle,
+  Divider,
   Grid,
   LinearProgress,
   Modal,
@@ -149,9 +151,12 @@ function AlgTrainerRandom({ onFinished }: AlgTrainerRandomProps) {
     return (
       <>
         <DialogTitle>Update alg progress</DialogTitle>
-        <AlgStatusReview
-          algs={algs.filter((alg) => alreadySeen.current[alg.id])}
-        />
+        <Divider />
+        <DialogContent>
+          <AlgStatusReview
+            algs={algs.filter((alg) => alreadySeen.current[alg.id])}
+          />
+        </DialogContent>
         <DialogActions>
           <Button variant="plain" onClick={onFinished}>
             Done
@@ -236,7 +241,10 @@ function AlgTrainerRecap({ onFinished }: AlgTrainerRecapProps) {
     return (
       <>
         <DialogTitle>Update alg progress</DialogTitle>
-        <AlgStatusReview algs={selectedAlgs} />
+        <Divider />
+        <DialogContent>
+          <AlgStatusReview algs={selectedAlgs} />
+        </DialogContent>
         <DialogActions>
           <Button variant="plain" onClick={onFinished}>
             Done
