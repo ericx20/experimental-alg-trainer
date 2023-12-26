@@ -113,6 +113,12 @@ function SelectAlgSet(algSet: AlgSet) {
   );
 }
 
+const statusNames = {
+  unlearned: "Not learned",
+  learning: "Learning",
+  learned: "Learned",
+};
+
 function SelectAlg(algSetId: string, alg: Alg) {
   const { setAlgSelected } = useStore();
   return (
@@ -138,6 +144,7 @@ function SelectAlg(algSetId: string, alg: Alg) {
           }}
           className="algselect-puzzlegen"
         />
+        <Typography>{statusNames[alg.status]}</Typography>
       </Card>
     </Grid>
   );

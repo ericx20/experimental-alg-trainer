@@ -13,14 +13,14 @@ export function useMediaQuery(query: string) {
 
   return match;
 }
-export function useSpacebar(onSpacebar: () => void) {
+export function useSpacebar(onSpacebar: () => void, disabled?: boolean) {
   const keyDownHandler = React.useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === " ") {
+      if (!disabled && e.key === " ") {
         onSpacebar();
       }
     },
-    [onSpacebar]
+    [onSpacebar, disabled]
   );
 
   React.useEffect(() => {

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { AlgSheet, AlgStatus, Alg, DefaultAlgSheet } from "./types";
+import type { AlgSheet, AlgStatus, Alg, DefaultAlgSheet } from "./types";
 import { OCLS } from "./defaultAlgs/ocls";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -10,8 +10,9 @@ type State = {
 
 type Actions = {
   getSelectedAlgs: () => Alg[];
+  getAlgById: (algId: string) => Alg | undefined;
   setAlgSelected: (algSetId: string, algId: string, selected: boolean) => void;
-  setAlgStatus: (algSetId: string, algId: string, status: AlgStatus) => void;
+  setAlgStatusById: (algId: string, status: AlgStatus) => void;
 };
 
 function id() {
@@ -48,6 +49,14 @@ export const useStore = create<State & Actions>()(
           algSet.algs.filter((alg) => alg.selected)
         );
       },
+      getAlgById: (algId) => {
+        for (const algSet of get().algSheet.algSets) {
+          const algIndex = algSet.algs.findIndex((alg) => alg.id === algId);
+          if (algIndex < 0) continue;
+          // we've found the alg!
+          return algSet.algs[algIndex];
+        }
+      },
       setAlgSelected: (algSetId, algId, selected) =>
         set((state) => {
           const algSet = state.algSheet.algSets.find(
@@ -57,17 +66,15 @@ export const useStore = create<State & Actions>()(
           const alg = algSet.algs.find((alg) => alg.id === algId);
           if (alg) alg.selected = selected;
         }),
-      setAlgStatus: (algSetId, algId, newStatus) =>
+      setAlgStatusById: (algId, newStatus) =>
         set((state) => {
-          const algSetIndex = state.algSheet.algSets.findIndex(
-            (algSet) => algSet.id === algSetId
-          );
-          if (algSetIndex < 0) return;
-          const algIndex = state.algSheet.algSets[algSetIndex].algs.findIndex(
-            (alg) => alg.id === algId
-          );
-          if (algIndex < 0) return;
-          state.algSheet.algSets[algSetIndex].algs[algIndex].status = newStatus;
+          state.algSheet.algSets.some((algSet) => {
+            const algIndex = algSet.algs.findIndex((alg) => alg.id === algId);
+            if (algIndex < 0) return false;
+            // we've found the alg!
+            algSet.algs[algIndex].status = newStatus;
+            return true;
+          });
         }),
     })),
     {

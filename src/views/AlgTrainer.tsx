@@ -2,17 +2,23 @@ import React from "react";
 import {
   Box,
   Button,
+  Card,
+  DialogActions,
+  DialogTitle,
+  Grid,
   LinearProgress,
   Modal,
   ModalClose,
   ModalDialog,
+  Option,
+  Select,
   Stack,
   Typography,
 } from "@mui/joy";
 import { useStore } from "../store";
 import { randomElement, shuffle } from "../utils";
 import { PuzzleGen } from "../components/PuzzleGen";
-import { MASKS } from "../lib/puzzle-gen-config";
+import { MASKS, SCHEME } from "../lib/puzzle-gen-config";
 import { Type } from "sr-puzzlegen";
 import { AUF, generateOclsScramble } from "../lib/scrambles";
 import { Alg as TwistyAlg } from "cubing/alg";
@@ -50,13 +56,13 @@ export function AlgTrainer() {
       >
         <ModalDialog layout="fullscreen">
           <ModalClose />
-          <AlgTrainerRandom />
+          <AlgTrainerRandom onFinished={() => setRandomTrainerOpen(false)} />
         </ModalDialog>
       </Modal>
       <Modal open={recapTrainerOpen} onClose={() => setRecapTrainerOpen(false)}>
         <ModalDialog layout="fullscreen">
           <ModalClose />
-          <AlgTrainerRecap />
+          <AlgTrainerRecap onFinished={() => setRecapTrainerOpen(false)} />
         </ModalDialog>
       </Modal>
     </>
@@ -102,13 +108,25 @@ function useOclsScramble(
   };
 }
 
-function AlgTrainerRandom() {
+interface AlgTrainerRandomProps {
+  onFinished: () => void;
+}
+
+function AlgTrainerRandom({ onFinished }: AlgTrainerRandomProps) {
   const { getSelectedAlgs } = useStore();
   const algs = React.useMemo(getSelectedAlgs, [getSelectedAlgs]);
 
   const [hidden, setHidden] = React.useState(true);
 
-  const chooseAlg = React.useCallback(() => randomElement(algs), [algs]);
+  const alreadySeen = React.useRef<Record<string, boolean>>({});
+
+  const chooseAlg = React.useCallback(() => {
+    const newAlg = randomElement(algs);
+    if (newAlg) {
+      alreadySeen.current[newAlg?.id] = true;
+    }
+    return newAlg;
+  }, [algs]);
 
   const onNextScramble = React.useCallback(() => {
     setHidden(true);
@@ -123,32 +141,61 @@ function AlgTrainerRandom() {
     getNextAlg();
   }, [getNextAlg]);
 
-  useSpacebar(getNextAlg);
+  const [isReview, setReview] = React.useState(false);
+
+  useSpacebar(getNextAlg, isReview);
+
+  if (isReview) {
+    return (
+      <>
+        <DialogTitle>Update alg progress</DialogTitle>
+        <AlgStatusReview
+          algs={algs.filter((alg) => alreadySeen.current[alg.id])}
+        />
+        <DialogActions>
+          <Button variant="plain" onClick={onFinished}>
+            Done
+          </Button>
+        </DialogActions>
+      </>
+    );
+  }
 
   return (
-    <Stack
-      alignItems="center"
-      justifyContent="center"
-      height="100%"
-      spacing={2}
-    >
-      <AlgTrainerDisplay
-        scramble={scramble}
-        solution={solution}
-        hidden={hidden}
-        loading={loading}
-        setHidden={setHidden}
-        next={getNextAlg}
-      />
-    </Stack>
+    <>
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        height="100%"
+        spacing={2}
+      >
+        <AlgTrainerDisplay
+          scramble={scramble}
+          solution={solution}
+          hidden={hidden}
+          loading={loading}
+          setHidden={setHidden}
+          next={getNextAlg}
+        />
+      </Stack>
+      <DialogActions>
+        <Button variant="plain" onClick={() => setReview(true)}>
+          End session
+        </Button>
+      </DialogActions>
+    </>
   );
 }
 
-function AlgTrainerRecap() {
+interface AlgTrainerRecapProps {
+  onFinished: () => void;
+}
+function AlgTrainerRecap({ onFinished }: AlgTrainerRecapProps) {
   const { getSelectedAlgs } = useStore();
+  const selectedAlgs = React.useMemo(getSelectedAlgs, [getSelectedAlgs]);
   const shuffledAlgs = React.useMemo(
-    () => shuffle(getSelectedAlgs()),
-    [getSelectedAlgs]
+    () => shuffle(selectedAlgs),
+    [selectedAlgs]
   );
 
   const [currIndex, setCurrIndex] = React.useState(0);
@@ -178,16 +225,24 @@ function AlgTrainerRecap() {
     getNextAlg();
   }, [getNextAlg]);
 
-  useSpacebar(onNext);
+  const finished = currIndex >= shuffledAlgs.length;
+
+  useSpacebar(onNext, finished);
 
   if (!shuffledAlgs.length)
     return <Typography>Need to select algs first</Typography>;
 
-  if (currIndex >= shuffledAlgs.length) {
+  if (finished) {
     return (
-      <Typography>
-        Congrats good for you, TODO update alg learning status
-      </Typography>
+      <>
+        <DialogTitle>Update alg progress</DialogTitle>
+        <AlgStatusReview algs={selectedAlgs} />
+        <DialogActions>
+          <Button variant="plain" onClick={onFinished}>
+            Done
+          </Button>
+        </DialogActions>
+      </>
     );
   }
 
@@ -239,13 +294,14 @@ function AlgTrainerDisplay({
     puzzle: {
       mask: MASKS.OCLS,
       case: solution,
+      scheme: SCHEME,
     },
   };
   return (
     <>
       <Typography textAlign="center" fontSize="lg">
         Scramble: <br />
-        {scramble !== "" ? scramble : "...loading"}
+        {scramble !== "" ? scramble : "Loading..."}
       </Typography>
       <PuzzleGen type={Type.CUBE} options={options} />
       <Box
@@ -266,5 +322,50 @@ function AlgTrainerDisplay({
         Next
       </Button>
     </>
+  );
+}
+
+interface AlgStatusReviewProps {
+  algs: Alg[];
+}
+function AlgStatusReview({ algs }: AlgStatusReviewProps) {
+  const { setAlgStatusById } = useStore();
+  return (
+    <Grid container spacing="10px">
+      {algs.map((alg) => (
+        <Grid width="160px" key={alg.id}>
+          <Card sx={{ padding: "4px" }}>
+            <Stack justifyContent="center">
+              <Box sx={{ marginRight: "auto", marginLeft: "auto" }}>
+                <PuzzleGen
+                  type={Type.CUBE_TOP}
+                  options={{
+                    puzzle: {
+                      case: alg.alg,
+                      mask: MASKS.OCLS,
+                      scheme: SCHEME,
+                    },
+                    width: 100,
+                    height: 100,
+                  }}
+                />
+              </Box>
+              <Select
+                // optimistic and sketchy
+                defaultValue={alg.status}
+                onChange={(_, newValue) =>
+                  newValue && setAlgStatusById(alg.id, newValue)
+                }
+                sx={{ width: "100%" }}
+              >
+                <Option value="unlearned">Not learned</Option>
+                <Option value="learning">Learning</Option>
+                <Option value="learned">Learned</Option>
+              </Select>
+            </Stack>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
   );
 }
