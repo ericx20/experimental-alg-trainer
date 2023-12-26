@@ -1,6 +1,8 @@
 .algselect-puzzlegen {
   width: 75px;
   height: 75px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media (min-width: 600px) {

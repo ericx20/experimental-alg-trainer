@@ -13,3 +13,18 @@ export function useMediaQuery(query: string) {
 
   return match;
 }
+export function useSpacebar(onSpacebar: () => void) {
+  const keyDownHandler = React.useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === " ") {
+        onSpacebar();
+      }
+    },
+    [onSpacebar]
+  );
+
+  React.useEffect(() => {
+    document.addEventListener("keydown", keyDownHandler);
+    return () => document.removeEventListener("keydown", keyDownHandler);
+  }, [keyDownHandler]);
+}

@@ -1,8 +1,16 @@
 import React from "react";
-import Button from "@mui/joy/Button";
-import { Modal, ModalClose, ModalDialog, Typography } from "@mui/joy";
+import {
+  Box,
+  Button,
+  LinearProgress,
+  Modal,
+  ModalClose,
+  ModalDialog,
+  Stack,
+  Typography,
+} from "@mui/joy";
 import { useStore } from "../store";
-import { randomElement } from "../utils";
+import { randomElement, shuffle } from "../utils";
 import { PuzzleGen } from "../components/PuzzleGen";
 import { MASKS } from "../lib/puzzle-gen-config";
 import { Type } from "sr-puzzlegen";
@@ -10,6 +18,7 @@ import { AUF, generateOclsScramble } from "../lib/scrambles";
 import { Alg as TwistyAlg } from "cubing/alg";
 import { cube3x3x3 } from "cubing/puzzles";
 import type { Alg } from "../types";
+import { useSpacebar } from "../hooks";
 
 export function AlgTrainer() {
   const { getSelectedAlgs, algSheet } = useStore();
@@ -23,12 +32,18 @@ export function AlgTrainer() {
 
   return (
     <>
-      <Button disabled={disabled} onClick={() => setRandomTrainerOpen(true)}>
-        Trainer
-      </Button>
-      <Button disabled={disabled} onClick={() => setRecapTrainerOpen(true)}>
-        Recap
-      </Button>
+      <Stack direction="row" spacing={1} justifyContent="space-evenly">
+        <Button disabled={disabled} onClick={() => setRandomTrainerOpen(true)}>
+          Train
+        </Button>
+        <Button
+          disabled={disabled}
+          onClick={() => setRecapTrainerOpen(true)}
+          variant="outlined"
+        >
+          Recap
+        </Button>
+      </Stack>
       <Modal
         open={randomTrainerOpen}
         onClose={() => setRandomTrainerOpen(false)}
@@ -88,12 +103,11 @@ function useOclsScramble(
 }
 
 function AlgTrainerRandom() {
-  const { algSheet, getSelectedAlgs } = useStore();
-  const algs = React.useMemo(getSelectedAlgs, [algSheet, getSelectedAlgs]);
+  const { getSelectedAlgs } = useStore();
+  const algs = React.useMemo(getSelectedAlgs, [getSelectedAlgs]);
 
   const [hidden, setHidden] = React.useState(true);
 
-  // TODO: support recap mode
   const chooseAlg = React.useCallback(() => randomElement(algs), [algs]);
 
   const onNextScramble = React.useCallback(() => {
@@ -109,34 +123,148 @@ function AlgTrainerRandom() {
     getNextAlg();
   }, [getNextAlg]);
 
-  return (
-    <>
-      <Typography>Scramble: {scramble}</Typography>
+  useSpacebar(getNextAlg);
 
-      <AlgTrainerDisplay alg={solution} />
-      <Button onClick={() => setHidden(!hidden)}>
-        {hidden ? "show" : "hide"} solution
-      </Button>
-      {!hidden && <Typography>Solution: {solution}</Typography>}
-      <Button onClick={getNextAlg} loading={loading}>
-        Next
-      </Button>
-    </>
+  return (
+    <Stack
+      alignItems="center"
+      justifyContent="center"
+      height="100%"
+      spacing={2}
+    >
+      <AlgTrainerDisplay
+        scramble={scramble}
+        solution={solution}
+        hidden={hidden}
+        loading={loading}
+        setHidden={setHidden}
+        next={getNextAlg}
+      />
+    </Stack>
   );
 }
 
 function AlgTrainerRecap() {
-  return <Typography>WIP</Typography>;
+  const { getSelectedAlgs } = useStore();
+  const shuffledAlgs = React.useMemo(
+    () => shuffle(getSelectedAlgs()),
+    [getSelectedAlgs]
+  );
+
+  const [currIndex, setCurrIndex] = React.useState(0);
+
+  const [hidden, setHidden] = React.useState(true);
+
+  const chooseAlg = React.useCallback(() => {
+    return shuffledAlgs[currIndex] ?? shuffledAlgs.at(-1);
+  }, [currIndex, shuffledAlgs]);
+
+  const onNextScramble = React.useCallback(() => {
+    setHidden(true);
+  }, [setHidden]);
+
+  const { loading, scramble, solution, getNextAlg } = useOclsScramble(
+    chooseAlg,
+    onNextScramble
+  );
+
+  const onNext = () => {
+    if (!shuffledAlgs.length || currIndex >= shuffledAlgs.length) return;
+    setCurrIndex(currIndex + 1);
+    getNextAlg();
+  };
+
+  React.useEffect(() => {
+    getNextAlg();
+  }, [getNextAlg]);
+
+  useSpacebar(onNext);
+
+  if (!shuffledAlgs.length)
+    return <Typography>Need to select algs first</Typography>;
+
+  if (currIndex >= shuffledAlgs.length) {
+    return (
+      <Typography>
+        Congrats good for you, TODO update alg learning status
+      </Typography>
+    );
+  }
+
+  return (
+    <>
+      <LinearProgress
+        determinate
+        value={(currIndex * 100) / shuffledAlgs.length}
+        sx={{ marginRight: "28px" }}
+      />
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        height="100%"
+        spacing={2}
+      >
+        <AlgTrainerDisplay
+          scramble={scramble}
+          solution={solution}
+          hidden={hidden}
+          loading={loading}
+          setHidden={setHidden}
+          next={onNext}
+        />
+      </Stack>
+    </>
+  );
 }
 
-function AlgTrainerDisplay({ alg }: { alg: string }) {
+interface AlgTrainerDisplayProps {
+  scramble: string;
+  solution: string;
+  hidden: boolean;
+  loading: boolean;
+  setHidden: (nowHidden: boolean) => void;
+  next: () => void;
+}
+function AlgTrainerDisplay({
+  scramble,
+  solution,
+  hidden,
+  loading,
+  setHidden,
+  next,
+}: AlgTrainerDisplayProps) {
   const options = {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     puzzle: {
       mask: MASKS.OCLS,
-      case: alg,
+      case: solution,
     },
   };
-  return <PuzzleGen type={Type.CUBE} options={options} />;
+  return (
+    <>
+      <Typography textAlign="center" fontSize="lg">
+        Scramble: <br />
+        {scramble !== "" ? scramble : "...loading"}
+      </Typography>
+      <PuzzleGen type={Type.CUBE} options={options} />
+      <Box
+        height="50px"
+        width="100%"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        {hidden && (
+          <Button onClick={() => setHidden(false)} variant="outlined">
+            Show solution
+          </Button>
+        )}
+        {!hidden && <Typography fontSize="lg">Solution: {solution}</Typography>}
+      </Box>
+      <Button onClick={next} loading={loading} sx={{ width: "150px" }}>
+        Next
+      </Button>
+    </>
+  );
 }
