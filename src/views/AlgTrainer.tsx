@@ -261,6 +261,7 @@ function AlgTrainerRecap({ onFinished }: AlgTrainerRecapProps) {
         value={(currIndex * 100) / shuffledAlgs.length}
         sx={{ marginRight: "28px" }}
       />
+      <Typography>{shuffledAlgs.length} selected, {shuffledAlgs.length - currIndex} left</Typography>
       <Stack
         alignItems="center"
         justifyContent="center"
