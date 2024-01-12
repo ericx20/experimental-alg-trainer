@@ -79,7 +79,7 @@ export const useStore = create<State & Actions>()(
     })),
     {
       name: "algStore",
-      version: 2,
+      version: 5,
     }
   )
 );
