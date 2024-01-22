@@ -261,7 +261,9 @@ function AlgTrainerRecap({ onFinished }: AlgTrainerRecapProps) {
         value={(currIndex * 100) / shuffledAlgs.length}
         sx={{ marginRight: "28px" }}
       />
-      <Typography>{shuffledAlgs.length} selected, {shuffledAlgs.length - currIndex} left</Typography>
+      <Typography>
+        {shuffledAlgs.length} selected, {shuffledAlgs.length - currIndex} left
+      </Typography>
       <Stack
         alignItems="center"
         justifyContent="center"
@@ -327,7 +329,12 @@ function AlgTrainerDisplay({
         )}
         {!hidden && <Typography fontSize="lg">Solution: {solution}</Typography>}
       </Box>
-      <Button onClick={next} loading={loading} sx={{ width: "150px" }}>
+      <Button
+        onClick={next}
+        loading={loading}
+        sx={{ width: "150px" }}
+        onKeyUp={(e) => e.preventDefault()}
+      >
         Next
       </Button>
     </>
